@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4a4a4a;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #676767;
+            margin-bottom: 20px;
+        }
+
+        /* Upload Form */
+        #upload-form {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        #upload-form input[type="file"] {
+            margin-right: 10px;
+        }
+
+        #upload-form button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #upload-form button:hover {
+            background: #45a049;
+        }
+
+        /* Table Styles */
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Prevent long filenames from shifting buttons */
+        td:first-child {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .btn-group button {
+            padding: 7px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-group button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+            }
+
+            #upload-form {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>File Manager</h1>
+
+    <!-- File Upload Form -->
+    <form id="upload-form" enctype="multipart/form-data" method="POST" action="/upload-file">
+        <input type="file" name="file" required>
+        <button type="submit">Upload File</button>
+    </form>
+
+    <h2>Available Files</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Upload Date & Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="file-list">
+            <!-- Files will be populated here dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        // Fetch and display the list of files with download and view buttons
+        async function fetchFiles() {
+            try {
+                const response = await fetch('/list-files');
+                const files = await response.json();
+                const fileList = document.getElementById('file-list');
+                fileList.innerHTML = '';
+
+                files.forEach(file => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td title="${file.filename}">${file.filename}</td>
+                        <td>${file.upload_time || "Unknown"}</td>
+                        <td class="btn-group">
+                            <button onclick="viewFile('${encodeURIComponent(file.filename)}')">View</button>
+                            <button onclick="downloadFile('${encodeURIComponent(file.filename)}')">Download</button>
+                        </td>
+                    `;
+                    fileList.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching files:', error);
+            }
+        }
+
+        // Trigger file view in the browser
+        function viewFile(filename) {
+            window.open(`/view-file/${filename}`, '_blank');
+        }
+
+        // Trigger file download
+        function downloadFile(filename) {
+            window.location.href = `/download-file/${filename}`;
+        }
+
+        // Load files on page load
+        window.onload = fetchFiles;
+    </script>
+
+</body>
+</html>
