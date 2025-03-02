@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Management Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: 20px auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .file-list li {
+    background: #f9f9f9;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.file-list li span {
+    font-weight: bold;
+    max-width: 50%; /* Restrict filename width */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-actions {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap; /* Prevents buttons from getting pushed out */
+}
+
+.file-actions a {
+    text-decoration: none;
+    background: #4CAF50;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+    flex: 1; /* Ensure equal spacing */
+    min-width: 80px; /* Prevent buttons from shrinking too much */
+}
+
+.file-actions a.view {
+    background: #00bcd4;
+}
+
+.file-actions a.download {
+    background: #4CAF50;
+}
+
+.file-actions a.delete {
+    background: #f44336;
+}
+
+@media (max-width: 768px) {
+    .file-list li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .file-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .file-actions a {
+        flex-grow: 1;
+        text-align: center;
+    }
+}
+
+/* Table Styles */
+.file-table {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-radius: 8px;
+            background: #fff;
+}
+table, th, td {
+           
+            border-left:1px solid #ddd; 
+            border-top:1px solid #ddd; }
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+}
+
+/* Set Equal Column Widths */
+th:nth-child(1), td:nth-child(1) { width: 33%; } /* Filename */
+th:nth-child(2), td:nth-child(2) { width: 33%; } /* Upload Date */
+th:nth-child(3), td:nth-child(3) { width: 95%; } /* Actions */
+
+/* Allow Long Filenames to Wrap */
+td.filename {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-align: left;
+    padding-left: 10px;
+}
+
+/* Center Align Buttons */
+td.file-actions {
+    display: flex;
+    justify-content: center;  /* Centers buttons horizontally */
+    align-items: center;  /* Centers buttons vertically */
+    flex-wrap: wrap;  /* Wraps buttons if needed */
+    gap: 8px;  /* Spacing between buttons */
+    padding: 10px;
+}
+
+/* Button Styling */
+.file-actions a {
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.file-actions .view { background: #00bcd4; color: white; }
+.file-actions .download { background: #4CAF50; color: white; }
+.file-actions .delete { background: #f44336; color: white; }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    th, td {
+        font-size: 12px;
+        padding: 8px;
+        text-align: center;
+    }
+}
+
+
+        .upload-form {
+            margin-bottom: 20px;
+        }
+
+        .upload-form input[type="file"] {
+            padding: 5px;
+        }
+
+        .upload-form button {
+            background: #2196F3;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logs, .user-logs {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logs pre, .user-logs pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .no-files {
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>File Management Dashboard</h1>
+
+        <!-- File Upload Section -->
+        <div class="card">
+            <h2>Upload a File</h2>
+            <form class="upload-form" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+
+        <!-- File List Section -->
+<!-- File List Section -->
+<div class="card">
+    <h2>Available Files</h2>
+    <div class="file-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Upload Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if files %}
+                    {% for file in files %}
+                    <tr>
+                        <td class="filename" title="{{ file.filename }}">{{ file.filename }}</td>
+                        <td>{{ file.upload_time }}</td>
+                        <td style="align-content: center;" class="file-actions">
+                            <a class="view" href="{{ url_for('view_file', filename=file.filename) }}" target="_blank">View</a>
+                            <a class="download" href="{{ url_for('download_file', filename=file.filename) }}">Download</a>
+                            <a class="delete" href="{{ url_for('delete_file', filename=file.filename) }}">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="no-files">No files available.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+        <!-- Server Logs Section -->
+        <div class="card">
+            <h2>Server Logs</h2>
+            <div class="logs">
+                <pre>
+                    {% for log in logs %}
+                        {{ log }}
+                    {% endfor %}
+                </pre>
+            </div>
+        </div>
+
+        <!-- Active User Logs Section -->
+        <div class="card">
+            <h2>Server File Logs</h2>
+            <div class="user-logs">
+                <pre>
+                    {% for user_log in user_logs %}
+                        {{ user_log }}
+                    {% endfor %}
+                </pre>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
